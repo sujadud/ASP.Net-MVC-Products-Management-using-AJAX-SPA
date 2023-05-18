@@ -1,0 +1,133 @@
+﻿@model Monthly_Final_Maser_Details.ViewModel.VmSale
+@{
+    ViewBag.Title = "Single";
+    var listSaleMaster = ViewData["List"] as List<Master_Details.Models.SaleMaster>;
+    var CreateDate = Model.CreateDate == null ? "" : Convert.ToDateTime(Model.CreateDate).ToString("yyyy-MM-dd");
+    var ButtonValue = Model.SaleId > 0 ? "Update" : "Add";
+    var ButtonClass = Model.SaleId > 0 ? "primary" : "success";
+    var indexItem = 0;
+}
+<h2>SPA with Razor Ajax</h2>
+
+@using (Ajax.BeginForm(
+        "Single",
+        "MvcAjax",
+        new AjaxOptions
+        {
+            OnSuccess = "OnSuccess",
+            OnFailure = "OnFailure",
+            LoadingElementId = "progress",
+            HttpMethod = "POST"
+        },
+        new { enctype = "multipart/form-data" }
+    ))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.SaleId)
+    @Html.LabelFor(m => m.CreateDate)
+    <br />
+    <input type="date" id="CreateDate" name="CreateDate"
+           value="@CreateDate" />
+    <br />
+    @Html.LabelFor(m => m.CustomerName)
+    <br />
+    @Html.TextBoxFor(m => m.CustomerName)
+    <br />
+    @Html.LabelFor(m => m.CustomerAddress)
+    <br />
+    @Html.TextBoxFor(m => m.CustomerAddress)
+    <br />
+    <input type="file" name="img" />
+    <br />
+    <br />
+    <button type="submit" id="btnUpdate" class="btn btn-@ButtonClass">
+        @ButtonValue
+    </button>
+    <a href="/MvcAjax/Single">Reset</a>
+    <br />
+    <br />
+    <div class="col-md-6">
+        <table class="table table-info">
+            <thead>
+                <tr>
+                    <th>ProductName</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>
+                        <button type="button" onclick="addItem();" class="btn btn-info">Add Item</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="tSD">
+                @foreach (var item in Model.SaleDetails)
+                {
+                    var UnitPrice = item.Price / item.Qty;
+                    indexItem++;
+                    <tr id="tr_@indexItem">
+                        <td>
+                            <input type="text" id="ProductName_@indexItem" name="ProductName" value="@item.ProductName" />
+                        </td>
+
+                        <td>
+                            <input type="text" id="UnitPrice_@indexItem" name="UnitPrice" value="@UnitPrice" style="text-align:right" onkeydown="calculatePrice(@indexItem);" />
+                        </td>
+                        <td>
+                            <input type="text" id="Qty_@indexItem" name="Qty" value="@item.Qty" style="text-align:right" onkeydown="calculatePrice(@indexItem);" />
+                        </td>
+                        <td>
+                            <input type="text" id="Price_@indexItem" name="Price" value="@item.Price" style="text-align:right" />
+                        </td>
+                        <td><a href="javascript:void(0)" onclick="removeItem(@indexItem);">Remove</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <br /><br />
+    <table class="table table-striped">
+        <tr>
+            <th>Date</th>
+            <th>Customer Name</th>
+            <th>Address</th>
+            <th>Picture</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        @foreach (var item in listSaleMaster)
+        {
+            <tr>
+                <td>@item.CreateDate</td>
+                <td>@item.CustomerName</td>
+                <td>@item.CustomerAddress</td>
+                <td><img src="@item.Photo" width="120" height="150"></td>
+                <td><a href="/MvcAjax/Single?id=@item.SaleId">Edit</a></td>
+                <td><a href="/MvcAjax/SingleDelete?id=@item.SaleId" onclick="return confirm('Are you sure to delete?')">Delete</a></td>
+            </tr>
+        }
+    </table>
+}
+
+<script>
+    var indexItem = @indexItem;
+    function addItem() {
+        indexItem += 1;
+        var TRs = '<tr id="tr_' + indexItem + '"><td><input type="text" id="ProductName_1" name="ProductName" value="" /></td>'
+            + '<td><input type="text" id="UnitPrice_' + indexItem + '" name="UnitPrice" value="0" style="text-align:right" onkeydown="calculatePrice(' + indexItem + ');" /></td>'
+            + '<td><input type="text" id="Qty_' + indexItem + '" name="Qty" value="0" style="text-align:right" onkeydown="calculatePrice(' + indexItem + ');" /></td>'
+            + '<td><input type="text" id="Price_' + indexItem + '" name="Price" value="" style="text-align:right" /></td>'
+            + '<td><a href="javascript:void(0)" onclick="removeItem(' + indexItem + ')">Remove</a></td>'
+            + '</tr>';
+        document.getElementById('tSD').innerHTML += TRs;
+    }
+
+    function calculatePrice(id) {
+        var Qty = parseFloat(document.getElementById('Qty_' + id).value);
+        var UnitPrice = parseFloat(document.getElementById('UnitPrice_' + id).value);
+        document.getElementById('Price_' + id).value = UnitPrice * Qty;
+    }
+
+    function removeItem(id) {
+        document.getElementById('tr_' + id).remove();
+    }
+</script>
