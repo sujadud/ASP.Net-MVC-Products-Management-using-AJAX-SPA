@@ -110,9 +110,11 @@ namespace Master_Details.Controllers
         {
             var db = new DatabaseEntities();
             var oSaleMaster = (from o in db.SaleMasters where o.SaleId == id select o).FirstOrDefault();
+            var oSaleDetails = (from o in db.SaleDetails where o.SaleId == id select o).FirstOrDefault();
             if (oSaleMaster != null)
             {
                 db.SaleMasters.Remove(oSaleMaster);
+                db.SaleDetails.Remove(oSaleDetails);
                 db.SaveChanges();
             }
             return RedirectToAction("Single");
