@@ -76,7 +76,10 @@ namespace Master_Details.Controllers
                 oSaleMaster.CreateDate = model.CreateDate;
                 oSaleMaster.CustomerAddress = model.CustomerAddress;
                 oSaleMaster.CustomerName = model.CustomerName;
-                oSaleMaster.Photo = "/Picture/" + fileName;
+                if(img != null)
+                {
+                    oSaleMaster.Photo = "/Picture/" + fileName;
+                }
                 ViewBag.Message = "updated successfully.";
                 var listSaleDetailRem = db.SaleDetails.Where(x => x.SaleId == oSaleMaster.SaleId).ToList();
                 db.SaleDetails.RemoveRange(listSaleDetailRem);
